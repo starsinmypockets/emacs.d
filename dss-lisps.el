@@ -5,6 +5,10 @@
 (diminish 'eldoc-mode "")
 (diminish 'paredit-mode "PE")
 
+;; (eldoc-add-command
+;;  'paredit-backward-delete
+;;  'paredit-close-round)
+
 (eval-when-compile
   (require 'cl))
 (require 'dss-codenav-helpers)
@@ -20,6 +24,17 @@
   (paredit-mode +1)
   (dss/highlight-watchwords)
   (run-hooks 'dss-lisp-modes-hook))
+
+
+(defun conditionally-enable-paredit-mode ()
+  "enable paredit-mode during eval-expression"
+  (if (eq this-command 'eval-expression)
+      (progn
+        (paredit-mode 1))))
+(add-hook 'minibuffer-setup-hook 'conditionally-enable-paredit-mode)
+
+
+;;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;  idea from esk-paren-face in emacs starter Kit
 (defface dss-paren-face
@@ -125,8 +140,7 @@
     (loop for i from 1 to rainbow-delimiters-max-face-count
           do (set-face-foreground
               (intern (concat "rainbow-delimiters-depth-" (number-to-string i) "-face"))
-              (elt dss-rainbow-delim-colors (1- i)))))
-  )
+              (elt dss-rainbow-delim-colors (1- i))))))
 
 (dss/lisp-setup-rainbow-delimeters)
 
@@ -229,11 +243,11 @@
 (defun dss/paredit-open-parenthesis ()
   (interactive)
   (cond ((and (not (or mark-active (dss/in-string-p)))
-              (looking-at-p "[\(a-z\"]"))
+              (looking-at-p "[\(a-z\"#\\[{]"))
          (progn
            (mark-sexp)
            (paredit-open-parenthesis)
-           (if (looking-at-p "\(")
+           (if (looking-at-p "[\(\"#\\[{]")
                (save-excursion (insert " ")))))
         (t (paredit-open-parenthesis))))
 (define-key paredit-mode-map "(" 'dss/paredit-open-parenthesis)
@@ -248,7 +262,7 @@
          (progn
            (mark-sexp)
            (paredit-comment-dwim)
-           (save-excursion (reindent-then-newline-and-indent))
+           ;; (save-excursion (reindent-then-newline-and-indent))
            (indent-according-to-mode)))
         ((and (not mark-active)
               (looking-at-p "^[[:blank:]]*$"))
@@ -295,6 +309,7 @@
   nil
   "(let ((" @ - "))" \n >
   @ _ ")")
+
 (setq dss-let-skeleton-func 'dss/elisp-let-skeleton)
 
 (defun dss/paredit-l-or-sexp-wrap-let ()
@@ -339,7 +354,7 @@
   (interactive)
   (if (and (not (dss/in-string-p))
            (or (looking-at-p "^")
-               (looking-at-p "\(")
+               (looking-at-p "[\(\"#\\[{]")
                (and (dss/in-slime-repl-p)
                     (slime-repl-at-prompt-start-p))))
       (dss/paredit-open-parenthesis)
@@ -392,11 +407,12 @@
 (defun dss/remove-elc-on-save ()
   "If you're saving an elisp file, likely the .elc is no longer valid.
   Comes from the emacs starter kit"
-  (make-local-variable 'after-save-hook)
   (add-hook 'after-save-hook
             (lambda ()
               (if (file-exists-p (concat buffer-file-name "c"))
-                  (delete-file (concat buffer-file-name "c"))))))
+                  (delete-file (concat buffer-file-name "c"))))
+            nil t))
+
 (defun dss/elisp-mode-hook ()
   (dss/remove-elc-on-save)
   (eldoc-mode 1)
