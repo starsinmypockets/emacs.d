@@ -104,10 +104,10 @@ http://github.com/technomancy/emacs-starter-kit/blob/master/starter-kit-defuns.e
 
 (defun dss/moz-eval-expression-fresno (expr)
   (interactive "sExpr: ")
-  (message (string- (dss/local-shell-command-to-string
+  (message (dss/local-shell-command-to-string
             (concat "~/src/fresno/fresno -j \""
                     expr
-                    "\"")))))
+                    "\""))))
 
 (defun dss/moz-eval-para ()
   (interactive)
@@ -182,7 +182,7 @@ http://github.com/technomancy/emacs-starter-kit/blob/master/starter-kit-defuns.e
 (defun dss/moz-reload ()
   "Reload the url in the current tab"
   (interactive)
-  (dss/moz-repl-home)
+  ;; (dss/moz-repl-home)
   (dss/moz-eval-expression-fresno "repl._creationContext.BrowserReload()"))
 
 (defun dss/moz-reload-delayed ()
@@ -216,7 +216,7 @@ http://github.com/technomancy/emacs-starter-kit/blob/master/starter-kit-defuns.e
 
 (defun dss/moz-new-tab ()
   (interactive)
-  (dss/moz-eval-expression "repl._creationContext.gBrowser.selectedTab = repl._creationContext.gBrowser.addTab()\n"))
+  (dss/moz-eval-expression-fresno "repl._creationContext.gBrowser.selectedTab = repl._creationContext.gBrowser.addTab()\n"))
 
 (defun dss/moz-new-tab-url (url)
   (interactive "sURL:")
@@ -239,15 +239,15 @@ http://github.com/technomancy/emacs-starter-kit/blob/master/starter-kit-defuns.e
 
 (defun dss/moz-close-tab ()
   (interactive)
-  (dss/moz-eval-expression "repl._creationContext.gBrowser.removeCurrentTab()\n"))
+  (dss/moz-eval-expression-fresno "repl._creationContext.gBrowser.removeCurrentTab()"))
 
 (defun dss/moz-back ()
   (interactive)
-  (dss/moz-eval-expression "repl._creationContext.BrowserBack()\n"))
+  (dss/moz-eval-expression-fresno "repl._creationContext.BrowserBack()"))
 
 (defun dss/moz-forward ()
   (interactive)
-  (dss/moz-eval-expression "repl._creationContext.BrowserForward()\n"))
+  (dss/moz-eval-expression "repl._creationContext.BrowserForward()"))
 
 (defun dss/moz-next-tab ()
   (interactive)
@@ -308,7 +308,7 @@ tabbrowser.selectedTab = tabbrowser.mTabs[_lastTab._tPos-1];
 (defun dss/moz-select-tab (n)
   (interactive "nTab: ")
   (dss/moz-eval-expression
-   (format "repl._creationContext.window.getBrowser().selectedTab = repl._creationContext.window.getBrowser().mTabs[%d];" (- n 1))))
+   (format "repl._creationContext.window.getBrowser().selectedTab = repl._creationContext.window.getBrowser().mTabs[%d]" (- n 1))))
 
 (defun dss/moz-select-window (n)
   (interactive "nWindow: ")
