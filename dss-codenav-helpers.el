@@ -117,6 +117,8 @@ Do nothing if not in string."
   (interactive)
   (dss/out-sexp 1 1))
 
+(require 'hl-line)
+
 (defun dss/flash-region (beg end)
   (interactive "r")
   (let ((ovl (make-overlay beg end))
