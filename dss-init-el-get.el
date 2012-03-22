@@ -124,6 +124,7 @@
         smex command-frequency
         session desktop-recover
 
+        hlinum
         diminish
         color-theme
         rainbow-mode
@@ -137,6 +138,9 @@
         list-register bm breadcrumb
         window-numbering column-marker vline col-highlight
         transpose-frame
+
+        pos-tip ;; required by popup-kill-ring
+        popup-kill-ring
 
         dvc magit magithub gist
 
