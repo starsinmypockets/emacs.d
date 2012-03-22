@@ -179,8 +179,16 @@ advice like this:
 ;; (define-key ac-completing-map " " 'dss/ac-electric-char)
 (define-key ac-completing-map "\r" 'ac-complete-no-fallback)
 ;; (define-key ac-completing-map (kbd "M-/") 'dabbrev-completion)
-(define-key ac-completing-map (kbd "M-/") 'dss/hippie-expand)
+;; (define-key ac-completing-map (kbd "M-/") 'dss/hippie-expand)
+(define-key ac-completing-map (kbd "M-/") 'ac-expand)
 
+;;; <up/down> in terminal
+(define-key ac-completing-map "\e[A" 'ac-previous)
+(define-key ac-completing-map "\e[B" 'ac-next)
+
+;;; C-<up/down> in terminal
+(define-key ac-completing-map "\eOa" 'ac-quick-help-scroll-up)
+(define-key ac-completing-map "\eOb" 'ac-quick-help-scroll-down)
 
 
 ;;; this seems to be little bit buggy with the most recent version of auto-complete.el ...
