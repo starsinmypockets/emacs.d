@@ -93,6 +93,7 @@
      (org-hide ((t (:foreground "#3a3a3a"))))
      (org-link ((t (:underline t :foreground "#afafff"))))
      (org-todo ((t (:foreground "red"))))
+     (org-tag ((t (:background "#3a3a3a" :foreground "#999999"))))
 
      (org-agenda-clocking ((t (:background "#111111" :underline t))))
      (org-agenda-dimmed-todo-face ((t (:foreground "grey"))))
