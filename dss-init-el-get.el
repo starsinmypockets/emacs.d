@@ -99,6 +99,8 @@
         (:name eredis :type http :url "http://eredis.googlecode.com/svn/trunk/eredis.el")
         (:name desktop-recover :type git :url "https://github.com/doomvox/desktop-recover.git")
         (:name ac-dabbrev :type emacswiki)
+        (:name cobol-mode :type emacswiki)
+        ;;
         (:name show-wspace :type emacswiki)
         (:name visible-mark :type emacswiki)
         (:name transpose-frame :type emacswiki)
@@ -115,9 +117,16 @@
 
         (:name elnode :type git :url "https://github.com/tavisrudd/elnode.git")
         (:name gh :type git :url "https://github.com/sigma/gh.el.git")
-        (:name pcache :type git :url "https://github.com/sigma/pcache.git")))
-
-
+        (:name pcache :type git :url "https://github.com/sigma/pcache.git")
+        (:name auto-complete-etags :type git :url "https://github.com/whitypig/auto-complete-etags.git")
+        (:name haskell-mode
+               :description "A Haskell editing mode"
+               :type git
+               :url "https://github.com/haskell/haskell-mode.git"
+               :load "haskell-site-file.el"
+               :post-init (lambda ()
+                            (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+                            (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)))))
 
 (setq dss-el-get-packages
       '(package
@@ -149,6 +158,7 @@
         paredit rainbow-delimiters autopair
 
         ac-slime
+        auto-complete-etags
 
         clojure-mode elein
         coffee-mode
@@ -174,6 +184,7 @@
         ;; bookmark+ ;; the el-get recipe for this seems to be broken
         pcache
         gh
+        cobol-mode
         ))
 
 ;; (setq dss-el-get-packages (mapcar (lambda (s)
