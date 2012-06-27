@@ -179,6 +179,7 @@ This is python-comment-line-p from Dave Love's python.el"
         (t (insert "self"))))
 
 (defun dss/python-mode-hook ()
+  (interactive)
   (dss/install-whitespace-cleanup-hook)
   (turn-on-auto-fill)
   (which-function-mode t)
