@@ -83,6 +83,7 @@ PARSE-STATUS is as documented in `parse-partial-sexp'."
       (insert quote-string)
       (backward-char 1))))
 
+(require 'jquery-doc)
 (defun dss/js2-mode-hook ()
   (require 'espresso)
   (flymake-mode)
@@ -95,6 +96,7 @@ PARSE-STATUS is as documented in `parse-partial-sexp'."
   (c-toggle-hungry-state 1)
   (setq js2-indent-on-enter-key t)
   (setq js2-enter-indents-newline t)
+  (jquery-doc-setup)
   (set (make-local-variable 'indent-line-function) 'dss/js2-indent-function)
   (define-key js2-mode-map [(meta control "|")] 'cperl-lineup)
   (define-key js2-mode-map [(meta control "\;")]
