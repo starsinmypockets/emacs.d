@@ -111,11 +111,14 @@
         (:name lineker :type http
                :url "http://www.helsinki.fi/~sjpaavol/programs/lineker.el")
         (:name js2-mode :type git :url "https://github.com/mooz/js2-mode")
+        (:name jquery-doc :type git :url "git://github.com/ananthakumaran/jquery-doc.el.git")
+
         (:name flymake-coffee :type git :url "git://github.com/purcell/flymake-coffee.git")
         (:name flymake-node-jshint :type git :url "git://github.com/jegbjerg/flymake-node-jshint.git")
         (:name elein :type git :url "https://github.com/remvee/elein.git")
         (:name pg :type http :url "http://www.online-marketwatch.com/pgel/pg.el")
         (:name stompem :type git :url "https://github.com/jwhitlark/Stompem.git")
+
 
         (:name elnode :type git :url "https://github.com/tavisrudd/elnode.git")
         (:name gh :type git :url "https://github.com/sigma/gh.el.git")
@@ -178,6 +181,7 @@
         haskell-mode
         lua-mode
         js2-mode
+        jquery-doc
         flymake-node-jshint
         buster-mode
         yaml-mode
