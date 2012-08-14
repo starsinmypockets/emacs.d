@@ -1009,7 +1009,7 @@ Returns nil if both fails."
 
  Unlike real window-configuration objects, fingerprints are not
  sensitive to the point moving and they can't be restored."
-   (mapcar (lambda (window) (list window (window-buffer window)))
+    (mapcar (lambda (window) (list window (window-buffer window)))
            (slime-frame-windows frame)))
 
  (defun slime-frame-windows (&optional frame)
@@ -3404,7 +3404,7 @@ Returns nil if both fails."
       (goto-char (point-min)))
      ((:zip file entry)
       (require 'arc-mode)
-      (set-buffer (find-file-noselect file t))
+      (set-buffer (find-file-noselect (slime-from-lisp-filename file) t))
       (goto-char (point-min))
       (re-search-forward (concat "  " entry "$"))
       (let ((buffer (save-window-excursion
@@ -3708,13 +3708,13 @@ Returns nil if both fails."
    "Display the arglist of the current form in the echo area."
    (funcall slime-echo-arglist-function))
 
-(defun slime-show-arglist ()
-  (let ((op (slime-operator-before-point)))
-    (when op
-      (slime-eval-async `(swank:operator-arglist ,op ,(slime-current-package))
-                        (lambda (arglist)
-                          (when arglist
-                            (slime-message "%s" arglist)))))))
+ (defun slime-show-arglist ()
+   (let ((op (slime-operator-before-point)))
+     (when op
+       (slime-eval-async `(swank:operator-arglist ,op ,(slime-current-package))
+                         (lambda (arglist)
+                           (when arglist
+                             (slime-message "%s" arglist)))))))
 
  (defun slime-operator-before-point ()
    (ignore-errors
@@ -4440,51 +4440,50 @@ Returns nil if both fails."
                  (slime-parse-context symbol))
                symbol)))))
 
-(defun slime-parse-context (name)
-  (save-excursion
-    (cond ((slime-in-expression-p '(defn *))          `(:defun ,name))
-          ((slime-in-expression-p '(defun *))          `(:defun ,name))
-          ((slime-in-expression-p '(defmacro *))       `(:defmacro ,name))
-          ((slime-in-expression-p '(defgeneric *))     `(:defgeneric ,name))
-          ((slime-in-expression-p '(setf *))
-           ;;a setf-definition, but which?
-           (backward-up-list 1)
-           (slime-parse-context `(setf ,name)))
-          ((slime-in-expression-p '(defmethod *))
-           (unless (looking-at "\\s ")
-             (forward-sexp 1)) ; skip over the methodname
-           (let (qualifiers arglist)
-             (loop for e = (read (current-buffer))
-                   until (listp e) do (push e qualifiers)
-                   finally (setq arglist e))
-             `(:defmethod ,name ,@qualifiers
-                          ,(slime-arglist-specializers arglist))))
-          ((and (symbolp name)
-                (slime-in-expression-p `(,name)))
-           ;; looks like a regular call
-           (let ((toplevel (ignore-errors (slime-parse-toplevel-form))))
-             (cond ((slime-in-expression-p `(setf (*)))  ;a setf-call
-                    (if toplevel
-                        `(:call ,toplevel (setf ,name))
-                      `(setf ,name)))
-                   ((not toplevel)
-                    name)
-                   ((slime-in-expression-p `(labels ((*))))
-                    `(:labels ,toplevel ,name))
-                   ((slime-in-expression-p `(flet ((*))))
-                    `(:flet ,toplevel ,name))
-                   (t
-                    `(:call ,toplevel ,name)))))
-          ((slime-in-expression-p '(define-compiler-macro *))
-           `(:define-compiler-macro ,name))
-          ((slime-in-expression-p '(define-modify-macro *))
-           `(:define-modify-macro ,name))
-          ((slime-in-expression-p '(define-setf-expander *))
-           `(:define-setf-expander ,name))
-          ((slime-in-expression-p '(defsetf *))
-           `(:defsetf ,name))
-          (t
-           name))))
+ (defun slime-parse-context (name)
+   (save-excursion
+     (cond ((slime-in-expression-p '(defun *))          `(:defun ,name))
+           ((slime-in-expression-p '(defmacro *))       `(:defmacro ,name))
+           ((slime-in-expression-p '(defgeneric *))     `(:defgeneric ,name))
+           ((slime-in-expression-p '(setf *))
+            ;;a setf-definition, but which?
+            (backward-up-list 1)
+            (slime-parse-context `(setf ,name)))
+           ((slime-in-expression-p '(defmethod *))
+            (unless (looking-at "\\s ")
+              (forward-sexp 1)) ; skip over the methodname
+            (let (qualifiers arglist)
+              (loop for e = (read (current-buffer))
+                    until (listp e) do (push e qualifiers)
+                    finally (setq arglist e))
+              `(:defmethod ,name ,@qualifiers
+                           ,(slime-arglist-specializers arglist))))
+           ((and (symbolp name)
+                 (slime-in-expression-p `(,name)))
+            ;; looks like a regular call
+            (let ((toplevel (ignore-errors (slime-parse-toplevel-form))))
+              (cond ((slime-in-expression-p `(setf (*)))  ;a setf-call
+                     (if toplevel
+                         `(:call ,toplevel (setf ,name))
+                       `(setf ,name)))
+                    ((not toplevel)
+                     name)
+                    ((slime-in-expression-p `(labels ((*))))
+                     `(:labels ,toplevel ,name))
+                    ((slime-in-expression-p `(flet ((*))))
+                     `(:flet ,toplevel ,name))
+                    (t
+                     `(:call ,toplevel ,name)))))
+           ((slime-in-expression-p '(define-compiler-macro *))
+            `(:define-compiler-macro ,name))
+           ((slime-in-expression-p '(define-modify-macro *))
+            `(:define-modify-macro ,name))
+           ((slime-in-expression-p '(define-setf-expander *))
+            `(:define-setf-expander ,name))
+           ((slime-in-expression-p '(defsetf *))
+            `(:defsetf ,name))
+           (t
+            name))))
 
  (defun slime-at-list-p (&optional skip-blanks)
    (save-excursion
@@ -4747,68 +4746,74 @@ Returns nil if both fails."
                       current-prefix-arg))
    (slime-apropos "" (not internal) package))
 
- (defun slime-show-apropos (plists string package summary)
-   (if (null plists)
-       (message "No apropos matches for %S" string)
-     (slime-with-popup-buffer ("*SLIME Apropos*" package t)
-       (apropos-mode)
-       (if (boundp 'header-line-format)
-           (setq header-line-format summary)
-         (insert summary "\n\n"))
-       (slime-set-truncate-lines)
-       (slime-print-apropos plists)
-       (set-syntax-table lisp-mode-syntax-table)
-       (goto-char (point-min)))))
+(defun slime-show-apropos (plists string package summary)
+  (if (null plists)
+      (message "No apropos matches for %S" string)
+    (slime-with-popup-buffer ("*SLIME Apropos*" package t)
+      (apropos-mode)
+      (setq buffer-read-only nil)
+      (if (boundp 'header-line-format)
+          (setq header-line-format summary)
+        (insert summary "\n\n"))
+      (slime-set-truncate-lines)
+      (slime-print-apropos plists)
+      (set-syntax-table lisp-mode-syntax-table)
+      (goto-char (point-min))
+      (setq buffer-read-only t))))
 
- (defvar slime-apropos-label-properties
-   (progn
-     (require 'apropos)
-     (cond ((and (boundp 'apropos-label-properties)
-                 (symbol-value 'apropos-label-properties)))
-           ((boundp 'apropos-label-face)
-            (etypecase (symbol-value 'apropos-label-face)
-              (symbol `(face ,(or (symbol-value 'apropos-label-face)
-                                  'italic)
-                             mouse-face highlight))
-              (list (symbol-value 'apropos-label-face)))))))
+(defvar slime-apropos-label-properties
+  (progn
+    (require 'apropos)
+    (cond ((and (boundp 'apropos-label-properties)
+                (symbol-value 'apropos-label-properties)))
+          ((boundp 'apropos-label-face)
+           (etypecase (symbol-value 'apropos-label-face)
+             (symbol `(face ,(or (symbol-value 'apropos-label-face)
+                                 'italic)
+                            mouse-face highlight))
+             (list (if (> (length (symbol-value 'apropos-label-face))
+                          1)
+                       (symbol-value 'apropos-label-face)
+                     `(face ,(car (symbol-value 'apropos-label-face)))
+                     )))))))
 
- (defun slime-print-apropos (plists)
-   (dolist (plist plists)
-     (let ((designator (plist-get plist :designator)))
-       (assert designator)
-       (slime-insert-propertized `(face ,apropos-symbol-face) designator))
-     (terpri)
-     (let ((apropos-label-properties slime-apropos-label-properties))
-       (loop for (prop namespace)
-             in '((:variable "Variable")
-                  (:function "Function")
-                  (:generic-function "Generic Function")
-                  (:macro "Macro")
-                  (:special-operator "Special Operator")
-                  (:setf "Setf")
-                  (:type "Type")
-                  (:class "Class")
-                  (:alien-type "Alien type")
-                  (:alien-struct "Alien struct")
-                  (:alien-union "Alien type")
-                  (:alien-enum "Alien enum"))
-             ;; Properties not listed here will not show up in the buffer
-             do
-             (let ((value (plist-get plist prop))
-                   (start (point)))
-               (when value
-                 (princ "  ")
-                 (slime-insert-propertized apropos-label-properties namespace)
-                 (princ ": ")
-                 (princ (etypecase value
-                          (string value)
-                          ((member :not-documented) "(not documented)")))
-                 (add-text-properties
-                  start (point)
-                  (list 'type prop 'action 'slime-call-describer
-                        'button t 'apropos-label namespace
-                        'item (plist-get plist :designator)))
-                 (terpri)))))))
+(defun slime-print-apropos (plists)
+  (dolist (plist plists)
+    (let ((designator (plist-get plist :designator)))
+      (assert designator)
+      (slime-insert-propertized `(face ,apropos-symbol-face) designator))
+    (terpri)
+    (let ((apropos-label-properties slime-apropos-label-properties))
+      (loop for (prop namespace)
+            in '((:variable "Variable")
+                 (:function "Function")
+                 (:generic-function "Generic Function")
+                 (:macro "Macro")
+                 (:special-operator "Special Operator")
+                 (:setf "Setf")
+                 (:type "Type")
+                 (:class "Class")
+                 (:alien-type "Alien type")
+                 (:alien-struct "Alien struct")
+                 (:alien-union "Alien type")
+                 (:alien-enum "Alien enum"))
+            ;; Properties not listed here will not show up in the buffer
+            do
+            (let ((value (plist-get plist prop))
+                  (start (point)))
+              (when value
+                (princ "  ")
+                (slime-insert-propertized apropos-label-properties namespace)
+                (princ ": ")
+                (princ (etypecase value
+                         (string value)
+                         ((member :not-documented) "(not documented)")))
+                (add-text-properties
+                 start (point)
+                 (list 'type prop 'action 'slime-call-describer
+                       'button t 'apropos-label namespace
+                       'item (plist-get plist :designator)))
+                (terpri)))))))
 
  (defun slime-call-describer (arg)
    (let* ((pos (if (markerp arg) arg (point)))
