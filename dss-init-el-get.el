@@ -18,6 +18,49 @@
       el-get-generate-autoloads t
       el-get-sources
       '(
+        ;; (:name yasnippet
+        ;;        :website "https://github.com/capitaomorte/yasnippet.git"
+        ;;        :description "YASnippet is a template system for Emacs."
+        ;;        :type github
+        ;;        :pkgname "capitaomorte/yasnippet"
+        ;;        :features "yasnippet"
+        ;;        :compile "yasnippet.el")
+        (:name yasnippet
+               :website "http://code.google.com/p/yasnippet/"
+               :description "YASnippet is a template system for Emacs."
+               :type git
+               :url "https://github.com/capitaomorte/yasnippet.git"
+               :features "yasnippet"
+               :prepare (lambda ()
+                          ;; Set up the default snippets directory
+                          ;;
+                          ;; Principle: don't override any user settings
+                          ;; for yas/snippet-dirs, whether those were made
+                          ;; with setq or customize.  If the user doesn't
+                          ;; want the default snippets, she shouldn't get
+                          ;; them!
+                          (unless (or (boundp 'yas/snippet-dirs) (get 'yas/snippet-dirs 'customized-value))
+                            (setq yas/snippet-dirs
+                                  (list (concat el-get-dir (file-name-as-directory "yasnippet") "snippets")))))
+
+               :post-init (lambda ()
+                            ;; Trick customize into believing the standard
+                            ;; value includes the default snippets.
+                            ;; yasnippet would probably do this itself,
+                            ;; except that it doesn't include an
+                            ;; installation procedure that sets up the
+                            ;; snippets directory, and thus doesn't know
+                            ;; where those snippets will be installed.  See
+                            ;; http://code.google.com/p/yasnippet/issues/detail?id=179
+                            (put 'yas/snippet-dirs 'standard-value
+                                 ;; as cus-edit.el specifies, "a cons-cell
+                                 ;; whose car evaluates to the standard
+                                 ;; value"
+                                 (list (list 'quote
+                                             (list (concat el-get-dir (file-name-as-directory "yasnippet") "snippets"))))))
+               ;; byte-compile load vc-svn and that fails
+               ;; see https://github.com/dimitri/el-get/issues/200
+               :compile nil)
         (:name wanderlust :type git
                :url "https://github.com/wanderlust/wanderlust.git"
                :load-path ("site-lisp/wl" "elmo")
@@ -74,6 +117,9 @@
         ;;        :compile (".")
         ;;        :build ("make -C doc && rm contrib/slime-tramp.elc")
         ;;        )
+        (:name monky :type git
+               :url "https://github.com/ananthakumaran/monky.git"
+               :build ("make all"))
         (:name magit
                :website "https://github.com/magit/magit#readme"
                :description "It's Magit! An Emacs mode for Git."
@@ -126,6 +172,7 @@
         (:name etags-select :type emacswiki)
         (:name auto-complete-etags :type git :url "https://github.com/whitypig/auto-complete-etags.git")
 
+        (:name restclient :type git :url "https://github.com/pashky/restclient.el.git")
         (:name buster-mode :type git :url "git://gitorious.org/buster/buster-mode.git")
         (:name mark-multiple :type git :url "git://github.com/magnars/mark-multiple.el.git")
         (:name haskell-mode
@@ -142,6 +189,9 @@
                                         ;cedet
         smex command-frequency
         session desktop-recover
+	sunrise-commander
+        sunrise-x-checkpoints
+        sunrise-x-modeline
 
         hlinum
         diminish
@@ -163,9 +213,10 @@
         pos-tip ;; required by popup-kill-ring
         popup-kill-ring
 
-        dvc magit magithub gist
+        dvc magit monky magithub gist
 
-        yasnippet auto-complete ac-dabbrev
+        yasnippet
+        auto-complete ac-dabbrev
 
         paredit rainbow-delimiters autopair
 
@@ -185,7 +236,7 @@
         flymake-node-jshint
         buster-mode
         yaml-mode
-
+        restclient
 
         org-mode
         ess

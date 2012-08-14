@@ -20,6 +20,7 @@
 (require 'dss-basic-editing)
 (require 'dss-whitespace-and-linelen)
 (require 'dss-buffer-and-window-handling)
+(require 'dss-sunrise)
 (require 'dss-skeleton)
 (require 'dss-generic-code-tools)
 (require 'dss-codenav-helpers)
@@ -46,7 +47,7 @@
 ;;(require 'dss-erlang)
 
 ;; other support funcs and minor modes
-(require 'dss-yas)
+;; (require 'dss-yas)
 (require 'dss-keybindings)
 (require 'dss-colorthemes)
 (require 'dss-browser-integration)
