@@ -1,6 +1,9 @@
 (setq-default case-fold-search t)
 
+;; (require 'isearch+)
+
 (eval-after-load "isearch" '(require 'isearch+))
+;;isearch-message-prefix
 
 ;; follow mode for output of grep and occur
 ;;; (require 'fm)
