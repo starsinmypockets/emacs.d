@@ -1,6 +1,7 @@
 ;; python-mode
 (require 'dss-paths)
 (require 'dss-codenav-helpers)
+(setq py-load-pymacs-p nil)
 (require 'python-mode)
 (require 'flymake)
 
@@ -139,17 +140,16 @@ This is python-comment-line-p from Dave Love's python.el"
       (back-to-indentation)
       (looking-at (rx (or (syntax comment-start) line-end))))))
 
-;; setup pymacs
-(autoload 'pymacs-apply "pymacs")
-(autoload 'pymacs-call "pymacs")
-(autoload 'pymacs-eval "pymacs" nil t)
-(autoload 'pymacs-exec "pymacs" nil t)
-(autoload 'pymacs-load "pymacs" nil t)
-
+(setq virtual-env (getenv "VIRTUAL_ENV"))
 (defvar dss-ropemacs-loaded nil)
 (defun dss/ropemacs-init ()
   (interactive)
   (unless dss-ropemacs-loaded
+    (if (not (equal virtual-env nil))
+        (setq load-path (append
+                         (list (concat virtual-env "/src/pymacs" ))
+                         load-path)))
+    (require 'pymacs)
     (if (not (boundp 'ropemacs-global-prefix))
         (setq ropemacs-global-prefix nil))
     (pymacs-load "ropemacs" "rope-")
@@ -182,9 +182,7 @@ This is python-comment-line-p from Dave Love's python.el"
   (interactive)
   (dss/install-whitespace-cleanup-hook)
   (turn-on-auto-fill)
-  (which-function-mode t)
-  (set 'beginning-of-defun-function 'py-beginning-of-def-or-class)
-  (setq outline-regexp "def\\|class ")
+  ;; (which-function-mode t)
   (setq mode-name "PY:")
   (setq py-python-command-args '("-colors" "Linux"))
   (if (and (string-match "\\.py$" (buffer-name))
@@ -198,7 +196,7 @@ This is python-comment-line-p from Dave Love's python.el"
         (flymake-mode t)
         (linum-mode t)
         (dss/ropemacs-init)
-        (ropemacs-mode t)
+        ;; (ropemacs-mode t)
         (dss/highlight-watchwords)
         (dss/load-rope-completion)))
 
@@ -216,18 +214,20 @@ This is python-comment-line-p from Dave Love's python.el"
   (define-key py-mode-map (kbd "C-M-@") 'mark-sexp)
   ;; rope-code-assist
   (define-key py-mode-map (kbd "M-/") 'dss/hippie-expand)
+
+  (define-key py-mode-map (kbd "M-@") 'etags-select-find-tag-at-point)
   (define-key py-mode-map (kbd "M-.") 'rope-goto-definition)
 
   ;;(define-key py-shell-map (kbd "C-M-@") 'dss/ido-ipython-complete)
   (define-key py-shell-map (kbd "C-M-@") 'mark-sexp)
-
   (define-key py-shell-map "\C-e" (lambda ()
                                     (interactive)
                                     (goto-char (point-max))))
   (define-key py-shell-map (quote [up]) 'comint-previous-matching-input-from-input)
   (define-key py-shell-map (quote [down]) 'comint-next-matching-input-from-input)
 
-  (local-set-key "\C-ch" 'pylookup-lookup))
+  ;;(local-set-key "\C-ch" 'pylookup-lookup)
+  )
 
 (add-hook 'python-mode-hook 'dss/python-mode-hook)
 
@@ -280,11 +280,11 @@ This is python-comment-line-p from Dave Love's python.el"
 (add-to-list 'auto-mode-alist '("\\.pyx$" . cython-mode))
 (add-to-list 'auto-mode-alist '("\\.pxd$" . cython-mode))
 
-(require 'pylookup)
-(autoload 'pylookup-lookup "pylookup"
-  "Lookup SEARCH-TERM in the Python HTML indexes." t)
-(autoload 'pylookup-update "pylookup"
-  "Run pylookup-update and create the database at `pylookup-db-file'." t)
+;; (require 'pylookup)
+;; (autoload 'pylookup-lookup "pylookup"
+;;   "Lookup SEARCH-TERM in the Python HTML indexes." t)
+;; (autoload 'pylookup-update "pylookup"
+;;   "Run pylookup-update and create the database at `pylookup-db-file'." t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (provide 'dss-python)
