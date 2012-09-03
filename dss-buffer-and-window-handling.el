@@ -150,24 +150,10 @@
   (with-selected-frame (or frame (selected-frame))
     (cdr (assoc 'name (wg-current-workgroup t)))))
 
-(let ((progress-reporter
-       (make-progress-reporter "Collecting mana for Emacs..."
-                               0  500)))
-  (dotimes (k 500)
-    (sit-for 0.01)
-    (progress-reporter-update progress-reporter k))
-  (progress-reporter-done progress-reporter))
-
 (defun dss/frame-by-name (name)
   (dolist (fr (frame-list))
     (if (string= (frame-parameter fr 'name) name)
         (return fr))))
-
-;; (with-selected-frame (dss/frame-by-name "20")
-;;   (dss/wg-name)
-;;   ;; (wg-switch-to-index 0)
-;;   )
-
 
 (defun dss/window-numbering-get-number (window frame)
   (gethash window
