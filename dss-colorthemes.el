@@ -112,7 +112,8 @@
 
      (ac-completion-face ((t (:foreground "red"))))
      (popup-isearch-match ((t (:foreground "red"))))
-     (ac-selection-face ((t (:foreground "black" :background "cyan"))))
+     (ac-selection-face ((t (:foreground "#fffd7" :background "#554d4b"))))
+     (ac-candidate-face ((t (:foreground "#fffd7" :background "#303030"))))
 
      (log-view-message ((t (:foreground "#0087af" :background "#1c1c1c"))))
 
