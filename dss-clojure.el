@@ -369,8 +369,16 @@
 
 (add-hook 'clojure-mode-hook 'dss/clojure-mode-hook)
 
-(put-clojure-indent 'match 1)
-(put-clojure-indent 'match/match 1)
+
+(define-clojure-indent
+  (match 1)
+  (match/match 1)
+
+  ;; crux indentation
+  (entity 'defun)
+  (events 'defun)
+  (defdomain 'defun))
+
 ;;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq clojure-test-ns-segment-position 1)
 (setq clojure-swank-command "~/bin/lein jack-in %s")
